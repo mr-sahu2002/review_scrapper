@@ -18,15 +18,17 @@ async def scrape_amazon_reviews(product_url, output_file):
                 await page.wait_for_selector('.review-text-content', timeout=20000)
                 print("Review section loaded")
                 
-                # Extract review texts
+                # Extract review texts, excluding those containing images or videos
                 reviews = await page.evaluate('''() => {
-                    return Array.from(document.querySelectorAll('.review-text-content span')).map(element => element.innerText);
+                    return Array.from(document.querySelectorAll('.review-text-content')).filter(element => {
+                        return element.querySelector('img') === null && element.querySelector('video') === null;
+                    }).map(element => element.innerText);
                 }''')
                 
                 all_reviews.extend(reviews)
                 print(f"Page {i+1}: Extracted {len(reviews)} reviews")
             except Exception as e:
-                print(f"Error on page")
+                print(f"Error on page {i+1}: {e}")
                 break
 
             # Check if the "Next" button is disabled
@@ -38,15 +40,17 @@ async def scrape_amazon_reviews(product_url, output_file):
 
             # Check if there is a "Next" button
             next_button = await page.query_selector('li.a-last a')
-            await page.evaluate('el => el.scrollIntoView()', next_button)
             if next_button:
-               
-                await next_button.click()
-                print("Clicked on 'Next' button")
-                await page.wait_for_timeout(7000)  # wait for the next page to load
-               
+                try:
+                    await next_button.scroll_into_view_if_needed()
+                    await next_button.click()
+                    print("Clicked on 'Next' button")
+                    await page.wait_for_timeout(7000)  # wait for the next page to load
+                except Exception as e:
+                    print(f"Failed to click 'Next' button on page {i+1}: {e}")
+                    break
             else:
-                print("No more pages")
+                print("No more pages or 'Next' button not found")
                 break
         
         # Close the browser
