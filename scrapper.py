@@ -1,6 +1,7 @@
 import asyncio
 import csv
 from playwright.async_api import async_playwright
+from name2link import get_link
 
 async def scrape_amazon_reviews(product_url, output_file):
     async with async_playwright() as p:
@@ -69,6 +70,10 @@ def save_to_csv(reviews, filename):
             writer.writerow([review])
 
 # Run the script with the desired product URL and output file name
-product_url = 'https://www.amazon.in/Lenovo-IdeaPad-39-62cm-Warranty-82RK006DIN/product-reviews/B0B4JPC8GT/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews'  # Replace with the desired product URL
-output_file = 'amazon_reviews.csv'
-asyncio.run(scrape_amazon_reviews(product_url, output_file))
+
+def get_reviews(product_name):
+    # product_name='lenovo ideapad 3'
+    product_url = get_link(product_name)[0] 
+    file_path='product_reviews/'
+    output_file = f'{file_path}{product_name}.csv'
+    asyncio.run(scrape_amazon_reviews(product_url, output_file))
