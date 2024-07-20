@@ -13,47 +13,24 @@ async def scrape_amazon_reviews(product_url, output_file):
         
         all_reviews = []
         
-        for i in range(5):
-            try:
-                # Wait for the reviews section to load
-                await page.wait_for_selector('.review-text-content', timeout=20000)
-                print("Review section loaded")
-                
-                # Extract review texts, excluding those containing images or videos
-                reviews = await page.evaluate('''() => {
-                    return Array.from(document.querySelectorAll('.review-text-content')).filter(element => {
-                        return element.querySelector('img') === null && element.querySelector('video') === null;
-                    }).map(element => element.innerText);
-                }''')
-                
-                all_reviews.extend(reviews)
-                print(f"Page {i+1}: Extracted {len(reviews)} reviews")
-            except Exception as e:
-                print(f"Error on page {i+1}: {e}")
-                break
 
-            # Check if the "Next" button is disabled
-            disabled_next_button = await page.query_selector('li.a-disabled.a-last')
+        try:
+            # Wait for the reviews section to load
+            await page.wait_for_selector('.review-text-content', timeout=20000)
+            print("Review section loaded")
             
-            if disabled_next_button:
-                print("Next button is disabled, no more pages.")
-                break
-
-            # Check if there is a "Next" button
-            next_button = await page.query_selector('li.a-last a')
-            if next_button:
-                try:
-                    await next_button.scroll_into_view_if_needed()
-                    await next_button.click()
-                    print("Clicked on 'Next' button")
-                    await page.wait_for_timeout(7000)  # wait for the next page to load
-                except Exception as e:
-                    print(f"Failed to click 'Next' button on page {i+1}: {e}")
-                    break
-            else:
-                print("No more pages or 'Next' button not found")
-                break
-        
+            # Extract review texts, excluding those containing images or videos
+            reviews = await page.evaluate('''() => {
+                return Array.from(document.querySelectorAll('.review-text-content')).filter(element => {
+                    return element.querySelector('img') === null && element.querySelector('video') === null;
+                }).map(element => element.innerText);
+            }''')
+            
+            all_reviews.extend(reviews)
+            
+        except Exception as e:
+            print(f"Error: {e}")
+    
         # Close the browser
         await browser.close()
         print("Browser closed")
@@ -71,9 +48,9 @@ def save_to_csv(reviews, filename):
 
 # Run the script with the desired product URL and output file name
 
-def get_reviews(product_name):
+async def get_reviews(product_name):
     # product_name='lenovo ideapad 3'
     product_url = get_link(product_name)[0] 
     file_path='product_reviews/'
     output_file = f'{file_path}{product_name}.csv'
-    asyncio.run(scrape_amazon_reviews(product_url, output_file))
+    await scrape_amazon_reviews(product_url, output_file)
