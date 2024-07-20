@@ -1,3 +1,5 @@
+product_reviews/
+*.csv
 .env
 test.py
-product_reviews
+test.js
