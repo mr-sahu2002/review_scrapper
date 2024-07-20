@@ -1,5 +1,5 @@
 product_reviews/
-*.csv
 .env
 test.py
-test.js
+static/
+node_modules/

@@ -3,6 +3,7 @@ from flask_cors import CORS
 import pandas as pd
 from pydantic import ValidationError
 from analyze import get_sentiment
+from analyze import generate_word_cloud
 from scrapper import get_reviews
 import asyncio
 
@@ -25,10 +26,17 @@ def scrape_review():
     product = product_request.product_name
     # Run the async function in a synchronous context
     asyncio.run(get_reviews(product))
-    df = pd.read_csv(f'product_reviews/{product}.csv')
+    path=f'product_reviews/{product}.csv'
+
+    df = pd.read_csv(path)
     arr_reviews = df.values
-    sentiment=get_sentiment(arr_reviews)
-    return sentiment
+
+    sentiment=get_sentiment(arr_reviews,0)
+    summary=get_sentiment(arr_reviews,1)
+
+    generate_word_cloud(path)
+    
+    return sentiment,summary
 
 if __name__ == '__main__':
     app.run(debug=True)
