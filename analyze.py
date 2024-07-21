@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 load_dotenv()
 
 # convert the .csv to array of reviews
-df = pd.read_csv(r'product_reviews/lenovo ideapad 3.csv')
+df = pd.read_csv(r'product_reviews/iphone 15.csv')
 arr_reviews = df.values
 
 client = Groq(
@@ -18,7 +18,7 @@ client = Groq(
 
 def get_sentiment(arr_reviews,flag):
     if flag == 0:
-        context=f"{arr_reviews} \n give me the sentimental analysis of the input array, the output should be a array of the reviews sentiment (postive=1,negative=-1,netural=0)"+"array of the sentiments return in -1,0,1 format, for ex:[1,0,-1,0,1,0]"+"only give the output array no explaination"
+        context=f"{arr_reviews} \n give me the sentimental analysis of the input array, the output should be a array of the reviews sentiment (postive=1,negative=-1,neutral=0)"+"array of the sentiments return in -1,0,1 format, for ex:[1,0,-1,0,1,0]"+"only give the output array no explaination"
     elif flag == 1:
         context=f"{arr_reviews} \n give me summary on the above array of reviews as one paragraph (within 100 words)"
 
@@ -99,3 +99,4 @@ def generate_word_cloud(file_path):
     print(f"Word cloud saved as {image_file_name}")
 
 # generate_word_cloud("product_reviews/amazon_reviews.csv")
+# print(get_sentiment(arr_reviews,0))

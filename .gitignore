@@ -3,3 +3,4 @@ product_reviews/
 test.py
 static/
 node_modules/
+__pycahce__/

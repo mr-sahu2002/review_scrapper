@@ -6,6 +6,13 @@ from analyze import get_sentiment
 from analyze import generate_word_cloud
 from scrapper import get_reviews
 import asyncio
+from collections import Counter
+
+def count_unique_elements(arr):
+    element_counts = Counter(arr)
+    sorted_elements = sorted(element_counts.items())  
+    counts = [count for element, count in sorted_elements]  
+    return counts
 
 app = Flask(__name__)
 CORS(app)
@@ -32,11 +39,12 @@ def scrape_review():
     arr_reviews = df.values
 
     sentiment=get_sentiment(arr_reviews,0)
+    sen_count=count_unique_elements(sentiment)
     summary=get_sentiment(arr_reviews,1)
 
     generate_word_cloud(path)
     
-    return sentiment,summary
+    return sen_count,summary
 
 if __name__ == '__main__':
     app.run(debug=True)
